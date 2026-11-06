@@ -1,0 +1,319 @@
+/* Theme tokens, layout, card and badge rules adapted from listmonk's admin
+   (github.com/knadh/listmonk static/admin/assets/css/style.css, AGPL-3.0).
+   Components come from Oat (vendor/oat.min.css, MIT). Geist font is OFL. */
+
+@font-face {
+  font-family: 'Geist';
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('vendor/Geist-Variable.woff2') format('woff2');
+}
+
+* {
+  --body: light-dark(#f9f9f9, #0a0b0d);
+  --card: light-dark(#fff, #14161a);
+  --faint: light-dark(#fafafa, #191b1f);
+  --muted: light-dark(#f4f4f5, #1d1f25);
+  --secondary: light-dark(#f4f4f5, #24262c);
+  --accent: light-dark(#f4f4f5, #2b2f36);
+  --background: light-dark(#fff, #212429);
+  --foreground: light-dark(#09090b, #f7f8f8);
+  --card-foreground: light-dark(#09090b, #f7f8f8);
+  --secondary-foreground: light-dark(#574747, #eceef1);
+  --muted-foreground: light-dark(#7a7a7a, #8a8f98);
+  --faint-foreground: light-dark(#a1a1aa, #767a83);
+  --primary: light-dark(#0055d4, #4f8ce6);
+  --primary-foreground: light-dark(#fff, #0a0b0d);
+  --ring: light-dark(#0055d4, #4f8ce6);
+  --border: light-dark(#e5e7eb, #2d3139);
+  --input: light-dark(#d4d4d8, #3a3e47);
+  --danger: light-dark(#d32f2f, #f2686e);
+  --success: light-dark(#008032, #52c290);
+  --warning: light-dark(#a65b00, #e6b95c);
+  --shadow-tint-1: light-dark(rgb(0 0 0 / 0.05), rgb(0 0 0 / 0.4));
+  --shadow-small: 0 1px 2px 0 var(--shadow-tint-1);
+  --container-max: 1100px;
+  --font-sans: "Geist", system-ui, sans-serif;
+
+  --tone-neutral: light-dark(#666, #9ea3ad);
+  --tone-neutral-bg: light-dark(#f5f5f5, rgb(255 255 255 / 0.06));
+  --tone-blue: light-dark(#1a5fd4, #5eabfa);
+  --tone-blue-bg: light-dark(#e4ecfe, rgb(94 171 250 / 0.13));
+  --tone-green: light-dark(#07795c, #52c290);
+  --tone-green-bg: light-dark(#ddf4ec, rgb(82 194 144 / 0.13));
+  --tone-amber: light-dark(#8f5a04, #e6b95c);
+  --tone-amber-bg: light-dark(#fdf0da, rgb(230 185 92 / 0.12));
+  --tone-red: light-dark(#bd3325, #f2686e);
+  --tone-red-bg: light-dark(#fdeae6, rgb(242 104 110 / 0.14));
+}
+
+html, body { height: 100%; background: var(--body); }
+body { font-family: var(--font-sans); min-width: 320px; }
+a { text-decoration: none; color: var(--primary); }
+[hidden] { display: none !important; }
+.text-7 { font-size: var(--text-7); }
+.text-8 { font-size: var(--text-8); }
+
+svg.icon {
+  width: 1em; height: 1em; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------- Layout (listmonk) ---------- */
+#app { min-height: 100dvh; }
+
+#app[data-sidebar-layout] {
+  grid-template-columns: 12rem minmax(0, var(--container-max));
+  grid-template-rows: 1fr;
+  column-gap: var(--space-10);
+  height: auto;
+  justify-content: center;
+  min-height: 100dvh;
+  padding-inline: var(--space-5);
+
+  > aside, > main { grid-row: 1; }
+  > main { padding-block-start: 0; overflow-y: visible; }
+}
+
+aside[data-sidebar] {
+  align-self: start;
+  background: transparent;
+  border-inline-end: 0;
+  box-shadow: none;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
+
+  > .sidebar-branding {
+    display: flex;
+    align-items: center;
+    padding: var(--space-6) 0 var(--space-2);
+  }
+
+  > nav {
+    margin-block-start: var(--space-10);
+    max-height: calc(100dvh - 5.75rem);
+    padding: 0;
+
+    ul > li { margin-block-end: var(--space-1); }
+  }
+
+  a { color: var(--muted-foreground); padding-inline: var(--space-2); }
+
+  a:is(:hover, [aria-current]) {
+    background: light-dark(rgb(0 85 212 / 0.08), rgb(255 255 255 / 0.08));
+    color: var(--foreground);
+  }
+
+  > footer { padding-inline: 0; }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--foreground);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-6);
+  letter-spacing: -0.02em;
+
+  svg.icon { color: var(--primary); font-size: 1.15em; stroke-width: 2.4; }
+}
+
+.nav-label {
+  color: var(--faint-foreground);
+  font-size: var(--text-8);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-inline: var(--space-2);
+  margin-block-end: var(--space-2);
+}
+
+.voice-link {
+  justify-content: space-between;
+  align-items: center;
+
+  .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dur { color: var(--faint-foreground); font-size: var(--text-8); font-variant-numeric: tabular-nums; }
+}
+
+.main-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-6) 0 var(--space-2);
+  color: var(--muted-foreground);
+  font-size: var(--text-8);
+
+  .mobile-branding { display: none; align-items: center; gap: var(--space-2); margin-inline-end: auto; }
+
+  button[data-sidebar-toggle] {
+    border: 0;
+    color: var(--foreground);
+    padding: 6px 10px;
+    &:hover { background-color: var(--accent); }
+  }
+}
+
+@media (max-width: 768px) {
+  #app[data-sidebar-layout] {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+    padding-inline: var(--space-4);
+
+    > aside[data-sidebar] {
+      position: fixed;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: 15rem;
+      padding-inline: var(--space-4);
+      background: var(--card);
+    }
+  }
+  .main-bar .mobile-branding { display: flex; }
+}
+
+main > .container {
+  padding-block-start: var(--space-6);
+  padding-inline: 0;
+  margin-bottom: var(--space-6);
+}
+
+.page-header {
+  min-height: calc(1lh + 2 * var(--space-2) + 2px);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+
+  h1 { margin-block-end: 0; font-size: var(--text-3); }
+}
+
+.empty-state {
+  align-items: center;
+  color: var(--muted-foreground);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block: var(--space-10);
+  text-align: center;
+
+  svg.icon { color: var(--faint-foreground); font-size: var(--text-2); stroke-width: 1.5; }
+}
+
+/* ---------- Cards (listmonk fieldset-style) ---------- */
+.card.float {
+  margin-block-start: 0.75em;
+  margin-block-end: var(--space-6);
+  padding: var(--space-4);
+  box-shadow: none;
+
+  > .title {
+    width: fit-content;
+    max-width: 100%;
+    margin: -26px 0 var(--space-4) 0;
+    padding: 0 var(--space-2);
+    background: var(--card);
+    font-size: var(--text-7);
+    font-weight: var(--font-medium);
+    line-height: var(--leading-normal);
+  }
+
+  &.has-table { padding-block-end: 0; }
+}
+
+.card.has-table .table-wrapper {
+  margin: 0 calc(-1 * var(--space-4));
+
+  tr th:first-child, tr td:first-child { padding-left: var(--space-4); }
+  tr th:last-child, tr td:last-child { padding-right: var(--space-4); }
+}
+
+table {
+  th, td { padding: var(--space-3) var(--space-2); vertical-align: middle; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted-foreground); font-weight: var(--font-medium); }
+  tbody tr:last-of-type td { border: 0; }
+}
+
+/* ---------- Badges (listmonk) ---------- */
+.badge {
+  --badge-fg: var(--tone-neutral);
+  --badge-bg: var(--tone-neutral-bg);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: calc(var(--space-1) * 0.75) var(--space-3);
+  border-radius: var(--radius-full);
+  background-color: var(--badge-bg);
+  color: var(--badge-fg);
+  border: 0;
+  font-size: var(--text-8);
+  font-weight: var(--font-medium);
+  white-space: nowrap;
+
+  &[data-variant="info"] { --badge-fg: var(--tone-blue); --badge-bg: var(--tone-blue-bg); }
+  &[data-variant="warning"] { --badge-fg: var(--tone-amber); --badge-bg: var(--tone-amber-bg); }
+  &[data-variant="success"] { --badge-fg: var(--tone-green); --badge-bg: var(--tone-green-bg); }
+  &[data-variant="danger"] { --badge-fg: var(--tone-red); --badge-bg: var(--tone-red-bg); }
+}
+
+/* ---------- Dialog (listmonk) ---------- */
+dialog {
+  padding: 0;
+  overflow: auto;
+  border-radius: var(--radius-medium);
+
+  .dialog-head {
+    background: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-3) var(--space-4);
+    .dialog-title { margin: 0; font-size: var(--text-6); }
+  }
+  .dialog-body { padding: var(--space-4); }
+  .dialog-foot {
+    display: flex;
+    gap: var(--space-2);
+    justify-content: flex-end;
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    button { min-width: 75px; }
+  }
+}
+
+/* ---------- Clonebox specifics ---------- */
+textarea.script {
+  min-height: 14rem;
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--text-7);
+}
+
+.tags { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-block: var(--space-3) 0; }
+.tags button.badge { cursor: pointer; font-family: var(--font-mono); font-weight: var(--font-normal); }
+.tags button.badge:hover { --badge-fg: var(--tone-blue); --badge-bg: var(--tone-blue-bg); background-color: var(--badge-bg); }
+
+.controls { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: end; margin-block-start: var(--space-4); }
+.controls [data-field] { margin: 0; min-width: 12rem; }
+.controls label { font-size: var(--text-8); color: var(--muted-foreground); }
+
+td.n { width: 2.5rem; color: var(--faint-foreground); font-variant-numeric: tabular-nums; }
+td.t { white-space: pre-wrap; min-width: 12rem; }
+td.a { width: 1%; white-space: nowrap; }
+td.a .hstack { flex-wrap: nowrap; }
+td audio { height: 2rem; width: 16rem; display: block; }
+td .meta { color: var(--faint-foreground); font-size: var(--text-8); margin-block-start: var(--space-1); }
+
+@media (max-width: 768px) {
+  td.a { white-space: normal; }
+  td audio { width: 100%; min-width: 10rem; }
+}
+
+.msg { font-size: var(--text-7); min-height: 1.5em; }
+.msg.err { color: var(--danger); }
+.msg.ok { color: var(--success); }
+
+.final audio { width: 100%; margin-block: var(--space-3); }
+.rec-row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+.rec-row .live { color: var(--danger); }
+.or { color: var(--faint-foreground); font-size: var(--text-8); text-transform: uppercase; letter-spacing: 0.06em; margin-block: var(--space-3); }

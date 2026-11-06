@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Clonebox</title>
+<link rel="preload" href="vendor/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="vendor/oat.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="vendor/oat.min.js" defer></script>
+</head>
+<body>
+<svg hidden xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-wave" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-retake" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+</svg>
+
+<div id="app" data-sidebar-layout>
+  <aside data-sidebar>
+    <header class="sidebar-branding">
+      <a href="/" class="brand"><svg class="icon"><use href="#i-wave"/></svg>clonebox</a>
+    </header>
+    <nav>
+      <div class="nav-label">Voices</div>
+      <ul id="voices"></ul>
+      <p class="text-lighter text-8" id="noVoices" style="padding-inline:var(--space-2)">No voices yet.</p>
+      <button type="button" class="outline small mt-4" id="newVoiceBtn"><svg class="icon"><use href="#i-plus"/></svg>New voice</button>
+    </nav>
+    <footer><span class="text-lighter text-8">Chatterbox Turbo</span></footer>
+  </aside>
+
+  <main>
+    <header class="main-bar">
+      <div class="mobile-branding">
+        <button data-sidebar-toggle type="button" aria-label="Toggle voices" class="ghost small"><svg class="icon"><use href="#i-menu"/></svg></button>
+        <span class="brand"><svg class="icon"><use href="#i-wave"/></svg>clonebox</span>
+      </div>
+      <span>Watermarked output · local only</span>
+    </header>
+
+    <div class="container">
+      <section>
+        <header class="hstack justify-between page-header">
+          <div class="hstack gap-2">
+            <h1>Generate</h1>
+            <span class="badge" data-variant="info" id="voiceBadge" hidden></span>
+          </div>
+          <div class="hstack gap-2" id="voiceActions" hidden>
+            <button type="button" class="outline small" id="playRefBtn"><svg class="icon"><use href="#i-play"/></svg>Reference</button>
+            <button type="button" class="ghost small" data-variant="danger" id="deleteVoiceBtn"><svg class="icon"><use href="#i-trash"/></svg>Delete</button>
+          </div>
+        </header>
+
+        <div class="card float">
+          <h3 class="title">Script</h3>
+          <textarea id="script" class="script" aria-label="Script" placeholder="One line per beat. Each line is generated separately.&#10;End a line with {0.8} to set the pause after it (seconds).&#10;&#10;So the database should be faster, right? {0.8}&#10;Well, not necessarily. [laugh]"></textarea>
+          <div class="tags" id="tags"></div>
+          <p class="text-lighter text-8 mt-2">Click a tag to insert it at the cursor. Unsupported tags are removed before generation.</p>
+          <div class="controls">
+            <div data-field>
+              <label for="temp">Temperature <span id="tempVal">0.8</span></label>
+              <input type="range" id="temp" min="0.1" max="1.5" step="0.05" value="0.8">
+            </div>
+            <div data-field>
+              <label for="gap">Default gap <span id="gapVal">0.4</span>s</label>
+              <input type="range" id="gap" min="0" max="2" step="0.1" value="0.4">
+            </div>
+            <div class="hstack gap-2" style="margin-inline-start:auto">
+              <button type="button" class="outline" id="stopBtn" hidden><svg class="icon"><use href="#i-stop"/></svg>Stop</button>
+              <button type="button" id="genBtn" disabled>Generate</button>
+            </div>
+          </div>
+          <div class="msg mt-2" id="gMsg"></div>
+        </div>
+
+        <div class="card float has-table">
+          <h3 class="title">Lines</h3>
+          <div class="table-wrapper">
+            <table id="linesTable" hidden>
+              <thead><tr><th>#</th><th>Text</th><th>Audio</th></tr></thead>
+              <tbody id="lines"></tbody>
+            </table>
+            <div class="empty-state" id="linesEmpty">
+              <svg class="icon"><use href="#i-mic"/></svg>
+              <p>Write a script and hit Generate.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card float final" id="final" hidden>
+          <h3 class="title">Output</h3>
+          <div class="hstack gap-2">
+            <button type="button" data-variant="secondary" id="joinBtn"><svg class="icon"><use href="#i-layers"/></svg>Join all lines</button>
+            <a class="button outline" id="dl" hidden><svg class="icon"><use href="#i-download"/></svg>Download WAV</a>
+            <span class="text-light text-7" id="joinInfo"></span>
+          </div>
+          <audio id="joined" controls hidden></audio>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<dialog id="voiceDialog" aria-labelledby="voiceDialogTitle">
+  <form id="voiceForm" class="dialog-card">
+    <header class="dialog-head hstack justify-between">
+      <h3 class="dialog-title" id="voiceDialogTitle">New voice</h3>
+      <button type="button" class="ghost small" data-close aria-label="Close"><svg class="icon"><use href="#i-x"/></svg></button>
+    </header>
+    <div class="dialog-body">
+      <div data-field>
+        <label for="vName">Name</label>
+        <input type="text" id="vName" maxlength="60" required placeholder="e.g. Me, studio mic">
+      </div>
+      <div data-field>
+        <label for="vFile">Reference audio</label>
+        <input type="file" id="vFile" accept="audio/*">
+        <div class="or">or</div>
+        <div class="rec-row">
+          <button type="button" class="outline small" id="recBtn"><svg class="icon"><use href="#i-mic"/></svg><span>Record</span></button>
+          <span class="text-light text-7" id="recInfo"></span>
+        </div>
+        <audio id="recPreview" controls hidden style="width:100%;margin-top:var(--space-3)"></audio>
+        <small data-hint>6–15 seconds of clean speech. Silence is trimmed automatically.</small>
+      </div>
+      <label>
+        <input type="checkbox" id="vConsent" required>
+        This is my voice, or I have the speaker's permission to clone it.
+      </label>
+      <div class="msg mt-2" id="vMsg"></div>
+    </div>
+    <footer class="dialog-foot">
+      <button type="button" class="outline" data-close>Cancel</button>
+      <button type="submit" id="vSubmit">Create voice</button>
+    </footer>
+  </form>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const MIN_REC_S = 6, MAX_LINE_CHARS = 600, MAX_GAP_S = 5;
+const GAP_RE = /\s*\{(\d+(?:\.\d+)?)\}\s*$/;  // trailing {0.8} = pause after line
+let voices = [], selected = null, recBlob = null, lines = [], stopping = false, busy = false;
+
+const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+function icon(name) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'icon');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `#i-${name}`);
+  svg.append(use);
+  return svg;
+}
+async function api(path, opts = {}) {
+  const res = await fetch(path, opts);
+  if (res.status === 204) return null;
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.title || (Array.isArray(body.detail) ? body.detail.map(d => d.msg).join('; ') : `HTTP ${res.status}`));
+  return body;
+}
+const clipUrl = (id) => `/api/clips/${id}`;
+function msg(node, text, kind = '') { node.textContent = text; node.className = `msg mt-2 ${kind}`; }
+
+// ---------- voices ----------
+async function loadVoices() {
+  voices = await api('/api/voices');
+  if (!voices.some(v => v.id === selected)) selected = voices[0]?.id ?? null;
+  renderVoices();
+}
+function renderVoices() {
+  $('voices').replaceChildren(...voices.map(v => {
+    const a = el('a', { href: '#', className: 'voice-link' }, el('span', { className: 'name', textContent: v.name }), el('span', { className: 'dur', textContent: `${v.duration}s` }));
+    if (v.id === selected) a.setAttribute('aria-current', 'true');
+    a.onclick = (e) => { e.preventDefault(); selected = v.id; renderVoices(); };
+    return el('li', {}, a);
+  }));
+  const cur = voices.find(v => v.id === selected);
+  $('noVoices').hidden = voices.length > 0;
+  $('voiceBadge').hidden = $('voiceActions').hidden = !cur;
+  if (cur) $('voiceBadge').textContent = cur.name;
+  resetDelete();
+  $('genBtn').disabled = busy || !selected;
+}
+$('playRefBtn').onclick = () => new Audio(`/api/voices/${selected}/reference`).play();
+function resetDelete() { $('deleteVoiceBtn').dataset.armed = ''; $('deleteVoiceBtn').lastChild.textContent = 'Delete'; }
+$('deleteVoiceBtn').onclick = async () => {
+  const b = $('deleteVoiceBtn');
+  if (!b.dataset.armed) { b.dataset.armed = '1'; b.lastChild.textContent = 'Confirm delete'; return; }
+  await api(`/api/voices/${selected}`, { method: 'DELETE' });
+  selected = null;
+  loadVoices();
+};
+
+// ---------- new voice dialog ----------
+const dlg = $('voiceDialog');
+function resetVoiceForm() {
+  $('voiceForm').reset(); recBlob = null;
+  $('recPreview').hidden = true; $('recInfo').textContent = ''; $('recBtn').lastChild.textContent = 'Record';
+  msg($('vMsg'), '');
+}
+$('newVoiceBtn').onclick = () => { resetVoiceForm(); dlg.showModal(); };
+dlg.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { if (recorder) recorder.stop(); dlg.close(); });
+
+let recorder = null, recStart = 0, recTimer = null;
+$('recBtn').onclick = async () => {
+  if (recorder) { recorder.stop(); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch { msg($('vMsg'), 'Microphone access denied.', 'err'); return; }
+  const chunks = [];
+  recorder = new MediaRecorder(stream);
+  recorder.ondataavailable = (e) => chunks.push(e.data);
+  recorder.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    clearInterval(recTimer);
+    const secs = (Date.now() - recStart) / 1000;
+    recBlob = new Blob(chunks, { type: recorder.mimeType });
+    recorder = null;
+    $('recBtn').lastChild.textContent = 'Record again';
+    $('recInfo').className = 'text-light text-7';
+    $('recPreview').src = URL.createObjectURL(recBlob);
+    $('recPreview').hidden = false;
+    $('vFile').value = '';
+    $('recInfo').textContent = secs < MIN_REC_S ? `${secs.toFixed(1)}s, too short (need ${MIN_REC_S}s+)` : `${secs.toFixed(1)}s recorded`;
+  };
+  recorder.start();
+  recStart = Date.now();
+  $('recBtn').lastChild.textContent = 'Stop';
+  $('recInfo').className = 'text-7 live';
+  recTimer = setInterval(() => { $('recInfo').textContent = `● Recording ${((Date.now() - recStart) / 1000).toFixed(0)}s`; }, 250);
+};
+$('vFile').onchange = () => { recBlob = null; $('recPreview').hidden = true; $('recInfo').textContent = ''; };
+
+$('voiceForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const file = $('vFile').files[0];
+  const audio = file || (recBlob && new File([recBlob], 'recording', { type: recBlob.type }));
+  if (!audio) { msg($('vMsg'), 'Upload a file or record a clip.', 'err'); return; }
+  const fd = new FormData();
+  fd.append('name', $('vName').value);
+  fd.append('consent', $('vConsent').checked);
+  fd.append('file', audio);
+  $('vSubmit').disabled = true;
+  $('vSubmit').setAttribute('aria-busy', 'true');
+  msg($('vMsg'), 'Cleaning reference and building voice…');
+  try {
+    const v = await api('/api/voices', { method: 'POST', body: fd });
+    selected = v.id;
+    dlg.close();
+    await loadVoices();
+  } catch (err) { msg($('vMsg'), err.message, 'err'); }
+  finally { $('vSubmit').disabled = false; $('vSubmit').removeAttribute('aria-busy'); }
+};
+
+// ---------- script ----------
+async function loadTags() {
+  const tags = await api('/api/tags');
+  $('tags').replaceChildren(...tags.map(t => {
+    const b = el('button', { type: 'button', className: 'badge', textContent: t });
+    b.onclick = () => {
+      const ta = $('script');
+      ta.setRangeText(` ${t} `, ta.selectionStart, ta.selectionEnd, 'end');
+      ta.focus();
+    };
+    return b;
+  }));
+}
+$('temp').oninput = () => $('tempVal').textContent = $('temp').value;
+$('gap').oninput = () => $('gapVal').textContent = $('gap').value;
+
+function retakeBtn(i) {
+  const b = el('button', { type: 'button', className: 'outline small', title: 'Retake with a new seed', disabled: busy }, icon('retake'), 'Retake');
+  b.onclick = () => run([i]);
+  return b;
+}
+function renderLine(i) {
+  const L = lines[i], cell = $('lines').children[i].querySelector('.a');
+  const states = { pending: ['Queued', ''], working: ['Generating…', 'info'] };
+  if (states[L.state]) {
+    cell.replaceChildren(el('span', { className: 'badge', textContent: states[L.state][0] }));
+    if (states[L.state][1]) cell.firstChild.dataset.variant = states[L.state][1];
+    return;
+  }
+  if (L.state === 'error') {
+    const badge = el('span', { className: 'badge', textContent: L.error, title: L.error });
+    badge.dataset.variant = 'danger';
+    cell.replaceChildren(el('div', { className: 'hstack gap-2' }, badge, retakeBtn(i)));
+    return;
+  }
+  const meta = `${L.duration}s · seed ${L.seed}` + (L.dropped?.length ? ` · removed ${L.dropped.join(' ')}` : '');
+  cell.replaceChildren(
+    el('div', { className: 'hstack gap-2' }, el('audio', { controls: true, src: clipUrl(L.clip_id), preload: 'none' }), retakeBtn(i)),
+    el('div', { className: 'meta', textContent: meta }),
+  );
+}
+
+async function synthLine(i) {
+  lines[i].state = 'working'; renderLine(i);
+  try {
+    const r = await api('/api/tts', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voice_id: lines[i].voice, text: lines[i].text, temperature: +$('temp').value }),
+    });
+    Object.assign(lines[i], { state: 'done', clip_id: r.clip_id, seed: r.seed, duration: r.duration, dropped: r.dropped_tags });
+  } catch (err) { Object.assign(lines[i], { state: 'error', error: err.message }); }
+  renderLine(i);
+}
+
+async function run(indices) {
+  busy = true; stopping = false;
+  $('genBtn').disabled = true; $('stopBtn').hidden = false; $('joinBtn').disabled = true;
+  $('joined').hidden = true; $('dl').hidden = true; $('joinInfo').textContent = '';
+  indices.forEach(i => { lines[i].state = 'pending'; renderLine(i); });
+  for (const [k, i] of indices.entries()) {
+    if (stopping) break;
+    msg($('gMsg'), `Generating line ${k + 1} of ${indices.length}…`);
+    await synthLine(i);
+  }
+  busy = false;
+  $('stopBtn').hidden = true; $('joinBtn').disabled = false;
+  lines.forEach((L, i) => { if (L.state === 'pending') Object.assign(L, { state: 'error', error: 'stopped' }); renderLine(i); });
+  const failed = lines.filter(L => L.state !== 'done').length;
+  msg($('gMsg'), failed ? `${failed} line(s) need a retake.` : `Done. ${lines.length} line(s) generated.`, failed ? 'err' : 'ok');
+  $('final').hidden = false;
+  renderVoices();
+}
+
+$('genBtn').onclick = () => {
+  const texts = $('script').value.split('\n').map(s => s.trim()).filter(Boolean);
+  if (!texts.length) { msg($('gMsg'), 'Write something first.', 'err'); return; }
+  const tooLong = texts.findIndex(t => t.length > MAX_LINE_CHARS);
+  if (tooLong >= 0) { msg($('gMsg'), `Line ${tooLong + 1} is over ${MAX_LINE_CHARS} characters; split it.`, 'err'); return; }
+  lines = texts.map(raw => {
+    const m = raw.match(GAP_RE);
+    return { text: m ? raw.replace(GAP_RE, '') : raw, gap: m ? Math.min(+m[1], MAX_GAP_S) : null, voice: selected, state: 'pending' };
+  });
+  const empty = lines.findIndex(L => !L.text);
+  if (empty >= 0) { msg($('gMsg'), `Line ${empty + 1} has a pause but no text.`, 'err'); return; }
+  $('lines').replaceChildren(...lines.map((L, i) => el('tr', {},
+    el('td', { className: 'n', textContent: i + 1 }),
+    el('td', { className: 't', textContent: L.text }),
+    el('td', { className: 'a' }),
+  )));
+  $('linesEmpty').hidden = true;
+  $('linesTable').hidden = false;
+  $('final').hidden = true;
+  run(lines.map((_, i) => i));
+};
+$('stopBtn').onclick = () => { stopping = true; msg($('gMsg'), 'Stopping after the current line…'); };
+
+$('joinBtn').onclick = async () => {
+  const done = lines.filter(L => L.state === 'done');
+  if (!done.length) return;
+  $('joinBtn').disabled = true;
+  try {
+    const r = await api('/api/join', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clip_ids: done.map(L => L.clip_id), gaps_s: done.map(L => L.gap ?? +$('gap').value) }),
+    });
+    $('joined').src = clipUrl(r.clip_id); $('joined').hidden = false;
+    $('dl').href = clipUrl(r.clip_id); $('dl').download = 'clonebox.wav'; $('dl').hidden = false;
+    $('joinInfo').textContent = `${r.duration}s` + (done.length < lines.length ? ` · ${lines.length - done.length} failed line(s) skipped` : '');
+  } catch (err) { $('joinInfo').textContent = err.message; }
+  finally { $('joinBtn').disabled = false; }
+};
+
+Promise.all([loadVoices(), loadTags()]).catch(err => msg($('gMsg'), `Server error: ${err.message}`, 'err'));
+</script>
+</body>
+</html>
