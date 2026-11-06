@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uvx ruff@0.14.0 check .
+      # ponytail: runs only the model-free helpers; add a full `uv sync` job when there are API tests (torch is ~GBs)
+      - run: uv run --no-project --with librosa --with pyloudnorm --with soundfile python core.py

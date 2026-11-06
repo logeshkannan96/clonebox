@@ -1,0 +1,21 @@
+name: Bug report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened
+      description: Expected vs actual behaviour, with steps to reproduce.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Environment
+      placeholder: macOS 15 / M2, MPS · Python 3.12 · commit abc1234
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Logs
+      description: Server output around the failure. Don't attach audio of real people.
+      render: text
