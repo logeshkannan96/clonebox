@@ -1,6 +1,6 @@
 """Clonebox: voice cloning web app on Chatterbox Turbo.
 
-    uv run uvicorn app:app --host 127.0.0.1 --port 8000
+    uv run app.py
 """
 
 import asyncio
@@ -60,6 +60,8 @@ def pick_device() -> str:
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    if not shutil.which("ffmpeg"):
+        raise RuntimeError("ffmpeg not found on PATH (macOS: brew install ffmpeg, Debian/Ubuntu: apt install ffmpeg)")
     VOICES.mkdir(parents=True, exist_ok=True)
     CLIPS.mkdir(parents=True, exist_ok=True)
     device = pick_device()
@@ -258,3 +260,9 @@ async def clip(clip_id: IdParam) -> FileResponse:
 
 
 app.mount("/", StaticFiles(directory=Path(__file__).parent / "static", html=True), name="static")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host=os.environ.get("CLONEBOX_HOST", "127.0.0.1"), port=int(os.environ.get("CLONEBOX_PORT", "8000")))

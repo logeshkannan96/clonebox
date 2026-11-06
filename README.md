@@ -16,17 +16,18 @@ Requires Python 3.12, [uv](https://docs.astral.sh/uv/) and `ffmpeg` on your `PAT
 ```bash
 git clone https://github.com/logeshkannan96/clonebox.git
 cd clonebox
-uv sync
-uv run uvicorn app:app --host 127.0.0.1 --port 8000
+uv run app.py
 ```
 
-Open http://127.0.0.1:8000. The first start downloads the Chatterbox Turbo weights from Hugging Face, which takes a few minutes.
+`uv run` installs dependencies on the first run. Open http://127.0.0.1:8000. The first start downloads the Chatterbox Turbo weights from Hugging Face, which takes a few minutes.
 
 ## Configuration
 
 | Env var | Default | Purpose |
 |---|---|---|
 | `CLONEBOX_DATA` | `./data` | Where voices (`voices/<id>/`) and generated clips (`clips/`) are stored |
+| `CLONEBOX_HOST` | `127.0.0.1` | Bind address (see [SECURITY.md](SECURITY.md) before changing) |
+| `CLONEBOX_PORT` | `8000` | Port |
 
 ## API
 

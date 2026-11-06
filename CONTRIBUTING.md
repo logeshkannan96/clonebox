@@ -3,7 +3,6 @@
 1. Open an issue before starting a non-trivial change.
 2. Set up and run locally:
    ```bash
-   uv sync
    uv run uvicorn app:app --reload
    ```
 3. Before opening a PR, run these checks:
