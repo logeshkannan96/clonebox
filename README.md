@@ -11,15 +11,18 @@ Clone a voice from a short recording and use it to read multi-line scripts. Clon
 
 ## Quickstart
 
-Requires Python 3.12, [uv](https://docs.astral.sh/uv/) and `ffmpeg` on your `PATH`.
-
 ```bash
-git clone https://github.com/logeshkannan96/clonebox.git
-cd clonebox
-uv run app.py
+git clone https://github.com/logeshkannan96/clonebox.git && cd clonebox
 ```
 
-`uv run` installs dependencies on the first run. Open http://127.0.0.1:8000. The first start downloads the Chatterbox Turbo weights from Hugging Face, which takes a few minutes.
+| | Command | Needs | Notes |
+|---|---|---|---|
+| **Native** (recommended on Mac) | `make` | [uv](https://docs.astral.sh/uv/), `ffmpeg` | Uses the Apple Silicon GPU (MPS) or CUDA, so it's the fastest option |
+| **Docker** | `make docker-run` | Docker | No local Python or ffmpeg needed. CPU only on Mac. On Linux with an NVIDIA GPU, run `make docker-run GPU=1` |
+
+Then open http://127.0.0.1:8000. The first start downloads the Chatterbox Turbo weights (about 1–2 GB). In Docker, the weights and your voices are kept in the `clonebox-cache` and `clonebox-data` volumes, so they survive container restarts.
+
+Other targets: `make dev` (auto-reload), `make check` (lint + self-check), `make clean-clips`. Set `PORT=9000` on any target to change the port.
 
 ## Configuration
 
